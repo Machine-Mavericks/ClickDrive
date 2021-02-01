@@ -15,6 +15,7 @@ astroOffset = astroOffsetX, astroOffsetY = (32, 32)
 screen = pygame.display.set_mode(size)
 pathColour = (214, 32, 41) # Mavericks colour from the website
 buttonFont = pygame.font.SysFont ('Ariel', 35)
+statusFont = pygame.font.SysFont ('Ariel', 25)
 
 # Add a "path" surface that's transparent!
 blankSurface = pygame.surface.Surface(size, pygame.SRCALPHA)
@@ -87,8 +88,24 @@ def romiAngle(romiPosition):
    romiX, romiY = romiPosition
    if type(commandQueue[0]) != int:
       targetX, targetY = commandQueue[0][0][0], commandQueue[0][0][1]
-      print ("Romi is at (", romiX, ", ", romiY, ") heading to (", targetX, ", ", targetY, ")")
-   
+      # print ("Romi is at (", romiX, ", ", romiY, ") heading to (", targetX, ", ", targetY, ")")
+
+def updateRomiStatusArea (romiPosition, pathArray):
+   # Top Status Position is for the current position of Romi
+   statusMessage1 = "Romi is at " + ' ' . join(map(str, [romiPosition]))
+   renderedMessage1 = statusFont.render (statusMessage1, True, (0, 0, 0))
+   # Second Status Position is for the Current Path Romi is following
+   statusMessage2 = "Romi is following path " + ' ' . join(map(str, commandQueue))
+   renderedMessage2 = statusFont.render (statusMessage2, True, (0, 0, 0))
+   # Third Status Position is to show the user the Planned Path they are building
+   statusMessage3 = "Path in progress " + ' ' . join(map(str, pathArray))
+   renderedMessage3 = statusFont.render (statusMessage3, True, (0, 0, 0))
+   # Clear status area and put all messages to status area
+   pygame.draw.rect (screen, (240, 240, 240), [10, 749, 1338, 155])
+   screen.blit (renderedMessage1, (10, 749))
+   screen.blit (renderedMessage2, (10, 769))
+   screen.blit (renderedMessage3, (10, 789))
+      
 
 def main():
    pathSurface = blankSurface.copy()
@@ -112,7 +129,15 @@ def main():
    textButton3 = buttonFont.render ('Trench Entry', True, pathColour)
    pygame.draw.rect (screen, (240, 240, 240), [1351, 95, 190, 40])
    screen.blit (textButton3, (1356, 105))
-      
+   # Setup bottom left area for Robot Feedback on Path Progress
+   statusLabel = buttonFont.render ('Robot Status Area', True, pathColour)
+   pygame.draw.rect (screen, (240, 240, 240), [5, 714, 1343, 190])
+   screen.blit (statusLabel, (10, 719))
+   # Setup bottom right as an ABORT button to clear the path array
+   abortButton = buttonFont.render ('ABORT', True, pathColour)
+   pygame.draw.rect (screen, (240, 240, 240), [1351, 714, 190, 190])
+   screen.blit (abortButton, (1396, 789))
+         
    while True:
       # Set fixed paths assigned to game buttons
       quickPath1 = [(1240, 235)]
@@ -173,7 +198,7 @@ def main():
          romiAngle(astroPosition)
          astroSurface, astroPosition = moveAstro(astroSurface, astroPosition, 10)
          
-                             
+      updateRomiStatusArea(astroPosition, pathArray)
       screen.blit (gameBackground,[0,0])
       screen.blit (pathSurface, [0,0])
       screen.blit (astroSurface, [0,0])
@@ -182,3 +207,4 @@ def main():
 
 # Execute game:
 main()
+
